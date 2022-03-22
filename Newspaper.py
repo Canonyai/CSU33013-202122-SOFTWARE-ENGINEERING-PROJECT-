@@ -1,30 +1,66 @@
 
+import requests
+from bs4 import BeautifulSoup
 from newspaper import Article
-import newspaper
+from textblob import TextBlob
 import nltk
+
 nltk.download('punkt')
 
-URLS = ['https://www.latimes.com/world-nation/story/2020-09-20/coronavirus-aerosol-airborne-spread',
-        'https://edition.cnn.com/2020/12/22/asia/hong-kong-pirates-eli-boggs-intl-hnk-dst/index.html'
-        ]
+# import nltk
+# import ssl
+#
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
+#
+# nltk.download()
 
 
-class MainSource(newspaper.Source):
-    def __init__(self, articleURL):
-        super(MainSource, self).__init__('http://localhost')
-        self.articles = [newspaper.Article(url=articleURL)]
+url = "https://abcnews.go.com/abcnews/technologyheadlines"
+response = requests.get(url)
+webpage = response.content
+soup = BeautifulSoup(webpage, features='xml')
 
+items = soup.findAll('item')
+articles = []
+for item in items:
+    link = item.find('link').text
+    articles.append(link)
+    # print(articles)
 
-sources = [MainSource(articleURL=u) for u in URLS]
+for url in articles:
+    article = Article(url)
+    article.download()
+    article.parse()
+    article.nlp()
 
-newspaper.news_pool.set(sources)
-newspaper.news_pool.join()
+    # to collect data we need:
+    title = article.title
+    summary = article.summary
+    keywords = article.keywords
+    text = article.text
+    authors= article.authors
+    # image=article.top_image
 
-for i in sources:
-    i.articles[0].download()
-    i.articles[0].parse()
-    i.articles[0].nlp()
+    # this is to measure sentimentality to determine the tone of the article
+    # subjectivity refers to the objectivity of the article
+    # polarity refers to the whether a side is being taken and which side an article takes
+    text_blob = TextBlob(text)
+    polarity_score = text_blob.polarity
+    subjectivity_score = text_blob.subjectivity
 
-    print('Title:', i.articles[0].title)
-    print('Author:', i.articles[0].authors)
-    print('Summary:', i.articles[0].summary)
+    print("*******************************")
+    print(f"Title: {title}")
+    print(f"authors: {authors}")
+    print(f"url: {url}")
+    print(f"keywords: {keywords}")
+    print(f"summary: {summary}")
+    print(f"polarity: {polarity_score}")
+    print(f"subjectivity: {subjectivity_score}")
+    print("*******************************")
+
+# print(response.status_code) should return 200 if uncommented
