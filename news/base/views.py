@@ -4,6 +4,7 @@ import pandas as pd
 import pymongo  # for mongodb access
 import pandas as pd
 import requests
+from newspaper import Article
 
 conn = "mongodb://localhost:27017"
 client = pymongo.MongoClient(conn)
@@ -14,6 +15,7 @@ health=[]
 science=[]
 sports=[]
 technology=[]
+urlS=''
 # Create a database
 def putData():
     
@@ -60,17 +62,17 @@ def getData():
             'country=us&'
             'category=' + list + '&'
                                 'language=en&'
-                                'apiKey=a6514dbbe8bb4c559910baeaf5c2a848')
+                                'apiKey=306d72983ccb4eb6a40aebbcc58e71e6')
         urlResponse = requests.get(url)
         urlResponse = urlResponse.json()
-
         articles = []
         for item in urlResponse['articles']:
             dict = {
 
                 "title": item['title'],
-             "urlToImage": item['urlToImage'],
-             "description": item['description']
+                "urlToImage": item['urlToImage'],
+                "description": item['description'],
+                "url": item['url']
             }
             articles = articles + [dict]
 
@@ -79,7 +81,7 @@ def getData():
 
         if len(articles) > 0:
             df = pd.DataFrame(urlResponse['articles'])
-            df = df.loc[:, ["title", "urlToImage"]]
+            df = df.loc[:, ["title", "urlToImage","url"]]
             df.to_csv(list + '.csv')
 def delData():
     conn = "mongodb://localhost:27017"
@@ -104,10 +106,10 @@ def extractData():
 
     count=1
     global general
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
 
         general=general+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
         count=count+1
 
@@ -116,9 +118,9 @@ def extractData():
     count=1
     global Entertainment
 
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         Entertainment=Entertainment+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -128,9 +130,9 @@ def extractData():
 
     count=1
     global business
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         business=business+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -140,9 +142,9 @@ def extractData():
     hG = pd.DataFrame(db.health.find())
     count=1
     global health
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         health=health+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -150,9 +152,9 @@ def extractData():
     hG = pd.DataFrame(db.science.find())
     count=1
     global science
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         science=science+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -161,9 +163,9 @@ def extractData():
     hG = pd.DataFrame(db.sports.find())
     count=1
     global sports
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         sports=sports+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -172,9 +174,9 @@ def extractData():
     hG = pd.DataFrame(db.technology.find())
     count=1
     global technology
-    for (i,j) in zip(hG.title,hG.urlToImage):
+    for (i,j,k) in zip(hG.title,hG.urlToImage,hG.url):
         technology=technology+[
-        {"id":count,"name":i,"image":j},
+        {"id":count,"name":i,"image":j,"url":k},
         ]
     
         count=count+1
@@ -185,8 +187,49 @@ def home(request):
     getData()
     putData()
     extractData()
+    
     return render(request,'home.html',{'general_headlines':general,'entertainment_headlines':Entertainment,'business':business,'health':health,'science':science,'sports':sports,'technology':technology})
-def summarize(request,pk):
-    return render(request,'summarize.html')
+def summarize(request,pk1,pk2):
+    putData()
+    extractData()
+
+    
+    pk2=(int(pk2))
+    pk2=pk2-1
+    print(pk2)
+    url=''
+    if(pk1=='general'):
+        list=general[pk2]
+        url=list['url']
+    if(pk1=='entertainment'):
+
+        list=Entertainment[pk2]
+        url=list['url']
+    if(pk1=='business'):
+        list=business[pk2]
+        url=list['url']  
+    if(pk1=='sports'):
+        list=sports[pk2]
+        url=list['url'] 
+    if(pk1=='science'):
+        list=science[pk2]
+        url=list['url']
+    if(pk1=='technology'):
+        list=technology[pk2]
+        url=list['url']
+    if(pk1=='health'):
+        list=health[pk2]
+        url=list['url']
+    
+    my_article = Article(url, language="en")
+    my_article.download()
+    my_article.parse()
+
+    my_article.nlp()
+    summary={}
+    summary=my_article.summary
+    
+    
+    return render(request,'summarize.html',{"sum":summary})
 
 
