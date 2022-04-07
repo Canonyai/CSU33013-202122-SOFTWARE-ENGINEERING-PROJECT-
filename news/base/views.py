@@ -181,6 +181,23 @@ def extractData():
     
         count=count+1
 
+def entertainment(request):
+    return render(request, 'news/entertainment.html', {'title': 'Entertainment'})
+
+def health(request):
+    return render(request, 'news/health.html', {'title': 'Health'})
+
+def science(request):
+    return render(request, 'news/science.html', {'title': 'Science'})
+
+def sports(request):
+    return render(request, 'news/sports.html', {'title': 'Sports'})
+
+def technology(request):
+    return render(request, 'news/technology.html', {'title': 'Technology'})
+
+def business(request):
+    return render(request, 'news/business.html', {'title': 'Business'})
 
 def home(request):
     delData()
