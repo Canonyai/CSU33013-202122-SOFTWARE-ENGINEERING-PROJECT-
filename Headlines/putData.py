@@ -34,5 +34,5 @@ db.science.insert_many(data)
 data = sports.to_dict(orient='records')
 db.sports.insert_many(data)
 
-data = business.to_dict(orient='records')
+data = technology.to_dict(orient='records')
 db.technology.insert_many(data)
