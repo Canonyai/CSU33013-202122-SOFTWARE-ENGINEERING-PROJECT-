@@ -1,11 +1,11 @@
 # CSU33013-202122-SOFTWARE-ENGINEERING-PROJECT-
 
 
-GROUP 4
-KINJAL BHATTACHARYYA
-PRADYUMN BHARDWAJ
-NOEL PETER
-CHINEDU ANONYAI
+GROUP 4 - 
+KINJAL BHATTACHARYYA,
+PRADYUMN BHARDWAJ,
+NOEL PETER,
+CHINEDU ANONYAI.
 
 The proposed system is to create a web app that enables user to search for a news and then automatically summarize the news once they click on it 
 
