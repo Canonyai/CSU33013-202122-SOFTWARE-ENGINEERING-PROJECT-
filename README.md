@@ -31,3 +31,10 @@ We used MongoDB as out database -
 
 For version control we used Github. We use pull requests to contribute code and each pull request required a review from two other members to be merged into the main branch. We were able to provide comments and feedback on contributed work and request changes.
 
+To run the app: -
+1. Download the Zip File
+2. Have docker runner in the background
+3. Open your terminal and go to the directory which has this file
+4. Run docker compose up
+5. The web app shoud be running on the localhost
+
